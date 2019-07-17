@@ -1,2 +1,2 @@
 # pySnake
-An attempt the popular snake game using the pygame framework
+An attempt at the popular snake game using the pygame framework
