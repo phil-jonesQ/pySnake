@@ -53,6 +53,7 @@ class snake(object):
 
             keys = pygame.key.get_pressed()
 
+
             for key in keys:
                 if keys[pygame.K_LEFT]:
                     self.dirnx = -1
@@ -76,8 +77,10 @@ class snake(object):
 
         for i, c in enumerate(self.body):
             p = c.pos[:]
+            #print(self.body)
             if p in self.turns:
                 turn = self.turns[p]
+                print(turn[0],turn[1])
                 c.move(turn[0], turn[1])
                 if i == len(self.body) - 1:
                     self.turns.pop(p)
@@ -143,7 +146,7 @@ def redrawWindow(surface):
     surface.fill((0, 0, 0))
     s.draw(surface)
     snack.draw(surface)
-    drawGrid(width, rows, surface)
+    #drawGrid(width, rows, surface)
     pygame.display.update()
 
 
@@ -184,7 +187,7 @@ def main():
     clock = pygame.time.Clock()
 
     while flag:
-        pygame.time.delay(50)
+        pygame.time.delay(10)
         clock.tick(10)
         s.move()
         if s.body[0].pos == snack.pos:
