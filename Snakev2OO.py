@@ -65,9 +65,9 @@ class Snake(object):
         #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
         #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
         #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
         self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
+        self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
+        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
         #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
         #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
         #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
@@ -86,37 +86,36 @@ class Snake(object):
             if event.type == pygame.QUIT:
                 pygame.quit()
         global left, right, up, down
-        print (left, right, up, down)
+        #print (left, right, up, down)
+        print("Right is " + str(right))
         keys = pygame.key.get_pressed()
         for key in keys:
-            if keys[pygame.K_LEFT]:
-                if right:
-                    self.dir_x = -1
-                    self.dir_y = 0
-                left = True
-                right = False
+            if keys[pygame.K_LEFT] and right:
+                print ("Applying left dir")
+                self.dir_x = -1
+                self.dir_y = 0
+                left = False
+                right = True
                 down = True
                 up = True
-            elif keys[pygame.K_RIGHT]:
-                if left:
-                    self.dir_x = 1
-                    self.dir_y = 0
+            elif keys[pygame.K_RIGHT] and left:
+                self.dir_x = 1
+                self.dir_y = 0
                 right = False
                 left = True
                 down = True
-                right = True
-            elif keys[pygame.K_UP]:
-                if down:
-                    self.dir_x = 0
-                    self.dir_y = -1
+                up = True
+            elif keys[pygame.K_UP] and down:
+
+                self.dir_x = 0
+                self.dir_y = -1
                 up = False
                 down = True
                 right = True
                 left = True
-            elif keys[pygame.K_DOWN]:
-                if up:
-                    self.dir_x = 0
-                    self.dir_y = 1
+            elif keys[pygame.K_DOWN] and up:
+                self.dir_x = 0
+                self.dir_y = 1
                 down = False
                 up = True
                 right = True
@@ -166,7 +165,7 @@ def main():
 
     loop = True
     global left, right, up, down
-    left = True
+    left = False
     right = True
     up = True
     down = True
