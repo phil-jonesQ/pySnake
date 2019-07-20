@@ -86,12 +86,9 @@ class Snake(object):
             if event.type == pygame.QUIT:
                 pygame.quit()
         global left, right, up, down
-        #print (left, right, up, down)
-        print("Right is " + str(right))
         keys = pygame.key.get_pressed()
         for key in keys:
             if keys[pygame.K_LEFT] and right:
-                print ("Applying left dir")
                 self.dir_x = -1
                 self.dir_y = 0
                 left = False
