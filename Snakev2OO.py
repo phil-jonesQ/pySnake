@@ -30,13 +30,14 @@ class Cube(object):
     def move(self, dir_x, dir_y):
         self.dir_x = dir_x
         self.dir_y = dir_y
+        print("pos")
         self.pos = (self.pos[0] + self.dir_x, self.pos[1] + self.dir_y)
 
     def draw(self, surface):
         dis = self.width // self.rows
         i = self.pos[0]
         j = self.pos[1]
-        pygame.draw.rect(snake_surface, self.colour, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
+        pygame.draw.rect(surface, self.colour, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
 
 
 class Snake(object):
@@ -47,8 +48,8 @@ class Snake(object):
         self.colour = colour
         self.head = Cube(pos)
         self.body.append(self.head)
-        self.dir_x = 0
-        self.dir_y = 1
+        self.dir_x = 1
+        self.dir_y = 0
 
     def move(self):
         for event in pygame.event.get():
@@ -65,6 +66,13 @@ class Snake(object):
                 c.draw(surface)
 
 
+def random_food(row):
+
+    row = random.randrange(scale)
+    col = random.randrange(scale)
+
+    return (row, col)
+
 
 
 def main():
@@ -75,8 +83,9 @@ def main():
     pygame.display.set_caption("Snake V1.00")
 
     # Create our snake object
-
     s = Snake((10, 10), GREEN)
+    # Create our initial food
+    f = Cube(random_food(scale), colour=RED)
     while loop:
         # Update screen
         snake_surface.fill(BLACK)
@@ -88,6 +97,10 @@ def main():
         s.move()
         # Draw Snake
         s.draw(snake_surface)
+
+        # Draw Food
+        f.draw(snake_surface)
+
         # Update the screen
         pygame.display.flip()
 
