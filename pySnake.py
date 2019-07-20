@@ -88,6 +88,7 @@ def move_snake(velocity, direction):
         snake_pos_y = scale
     return
 
+
 def scan_keys():
     global my_dir
     for event in pygame.event.get():
@@ -104,12 +105,14 @@ def scan_keys():
             if event.key == pygame.K_LEFT:
                 my_dir = 0
 
+
 def check_collision():
     global food_pos_x, food_pos_y
     if snake_pos_x == food_pos_x and snake_pos_y == food_pos_y:
         food_pos_x = random.randint(4, scale - 4)
         food_pos_y = random.randint(4, scale - 4)
         draw_food()
+
 
 
 
