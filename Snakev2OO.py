@@ -30,7 +30,6 @@ class Cube(object):
     def move(self, dir_x, dir_y):
         self.dir_x = dir_x
         self.dir_y = dir_y
-        print("pos")
         self.pos = (self.pos[0] + self.dir_x, self.pos[1] + self.dir_y)
 
     def draw(self, surface):
@@ -38,6 +37,11 @@ class Cube(object):
         i = self.pos[0]
         j = self.pos[1]
         pygame.draw.rect(surface, self.colour, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
+
+    def return_pos(self):
+        cube_x = self.pos[0]
+        cube_y = self.pos[1]
+        return cube_x, cube_y
 
 
 class Snake(object):
@@ -52,27 +56,59 @@ class Snake(object):
         self.dir_y = 0
 
     def move(self):
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
         keys = pygame.key.get_pressed()
+        for key in keys:
+            if keys[pygame.K_LEFT]:
+                self.dir_x = -1
+                self.dir_y = 0
+            elif keys[pygame.K_RIGHT]:
+                self.dir_x = 1
+                self.dir_y = 0
+            elif keys[pygame.K_UP]:
+                self.dir_x = 0
+                self.dir_y = -1
+            elif keys[pygame.K_DOWN]:
+                self.dir_x = 0
+                self.dir_y = 1
 
     def draw(self, surface):
         for i, c in enumerate(self.body):
+            c.move(self.dir_x, self.dir_y)
             if i == 0:
                 c.draw(surface)
             else:
                 c.draw(surface)
+            # Constrain it
+            if i == 0:
+                #print ("Snake Head is at " + str(c.pos[0]), str(c.pos[1]))
+                if c.pos[0] > scale - 1:
+                    c.pos = (0, c.pos[1])
+                if c.pos[0] < 0:
+                    c.pos = (scale - 1, c.pos[1])
+                if c.pos[1] > scale - 1:
+                    c.pos = (c.pos[0], 0)
+                if c.pos[1] < 0:
+                    c.pos = (c.pos[0], scale - 1)
 
 
 def random_food(row):
-
-    row = random.randrange(scale)
-    col = random.randrange(scale)
-
-    return (row, col)
-
+    # We're passed in the row the snakes head is on
+    # This ensures the food can not be generated where the head is
+    while True:
+        f_row = random.randrange(scale)
+        f_col = random.randrange(scale)
+        print (f_row, row)
+        if f_row == row:
+            continue
+        else:
+            break
+    return f_row, f_col
 
 
 def main():
@@ -85,21 +121,27 @@ def main():
     # Create our snake object
     s = Snake((10, 10), GREEN)
     # Create our initial food
-    f = Cube(random_food(scale), colour=RED)
+    f = Cube(random_food(s.body[0].pos), colour=RED)
     while loop:
         # Update screen
         snake_surface.fill(BLACK)
-        pygame.time.delay(150)
-        clock.tick(40)
-        pygame.display.update()
-
+        # Control FPS
+        pygame.time.delay(80)
+        clock.tick(30)
         # Move Snake
         s.move()
+        pygame.display.update()
+
+
         # Draw Snake
         s.draw(snake_surface)
 
         # Draw Food
         f.draw(snake_surface)
+
+        # Check collides
+        if f.pos == s.body[0].pos:
+            f = Cube(random_food(s.body[0].pos), colour=RED)
 
         # Update the screen
         pygame.display.flip()
