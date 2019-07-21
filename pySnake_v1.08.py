@@ -13,9 +13,9 @@ import random
 
 # Constants
 
-WindowWidth = 520
-WindowHeight = 600
-scale = 25
+WindowWidth = 500
+WindowHeight = 570
+scale = 20
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -25,6 +25,7 @@ LIGHT_GREEN = (101, 152, 101)
 GREY = (128, 128, 128)
 snake_surface = pygame.display.set_mode((WindowWidth, WindowHeight))
 clock = pygame.time.Clock()
+MY_VERSION = "1.11"
 
 
 class Cube(object):
@@ -113,22 +114,22 @@ class Snake(object):
 
     def draw(self, surface):
         for i, c in enumerate(self.body):
-            snakeLength = (len(self.body))
-            head = snakeLength - 1
+            snake_length = (len(self.body))
+            head = snake_length - 1
             if i == head:
                 c.draw(surface, True)
             else:
                 c.draw(surface)
             # Constrain it
             if i == head:
-                if c.pos[0] > scale:
+                if c.pos[0] > scale - 1:
                     c.pos = (0, c.pos[1])
                 if c.pos[0] < 0:
                     c.pos = (scale, c.pos[1])
-                if c.pos[1] > scale:
+                if c.pos[1] > scale - 1:
                     c.pos = (c.pos[0], 0)
                 if c.pos[1] < 0:
-                    c.pos = (c.pos[0], scale)
+                    c.pos = (c.pos[0], scale - 1)
 
     def add_block(self):
         tail = self.body[-1]
@@ -171,7 +172,7 @@ def main():
     # Declare Global Vars
     global left, right, up, down, level, frame_rate, game_over
     pygame.init()
-    pygame.display.set_caption("Snake V1.10")
+    pygame.display.set_caption("Snake " + MY_VERSION)
 
     # Initialise fonts we will use
     font = pygame.font.SysFont('Arial', 50, False, False)
@@ -187,7 +188,6 @@ def main():
 
         # Update screen
         snake_surface.fill(BLACK)
-
         # Control FPS
         clock.tick(frame_rate)
 
@@ -202,22 +202,22 @@ def main():
         f.draw(snake_surface)
 
         # Check collides with food
-        snakeLength = len(s.body)
-        if f.pos == s.body[snakeLength - 1].pos:
+        snake_length = len(s.body)
+        if f.pos == s.body[snake_length - 1].pos:
             f = Cube(random_food(s.body[0].pos), colour=RED)
             s.add_block()
 
         # Check collides with self
-        for each_block in range(snakeLength):
+        for each_block in range(snake_length):
             if s.body[each_block].pos in list(map(lambda z: z.pos, s.body[each_block + 1:])):
                 game_over = True
                 break
 
         # Update Display for user
-        text = font.render("SCORE " + str(snakeLength), True, WHITE)
+        text = font.render("SCORE " + str(snake_length), True, WHITE)
         text2 = font.render("LEVEL " + str(level), True, WHITE)
         if game_over:
-            text = font.render("SCORE " + str(snakeLength), True, WHITE)
+            text = font.render("SCORE " + str(snake_length), True, WHITE)
             text2 = font.render("LEVEL " + str(level), True, WHITE)
             text_game_over = font2.render("GAME OVER!!! SPACE TO RESTART..", True, RED)
             snake_surface.blit(text_game_over, [80, WindowHeight - 400])
@@ -229,11 +229,11 @@ def main():
         pygame.display.flip()
 
         # Increase Level
-        if snakeLength > 10:
+        if snake_length > 10:
             level = 2
-        if snakeLength > 20:
+        if snake_length > 20:
             level = 3
-        if snakeLength > 40:
+        if snake_length > 40:
             level = 4
 
         # Map level
