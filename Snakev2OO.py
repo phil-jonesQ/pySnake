@@ -1,3 +1,12 @@
+""" Version 1.00 - simple version of the snake game.. The game uses pygame to handle the graphics and is desinged on a
+simple grid system (20,20 squares). This makes collision detection very easy. The algorithm I've used simply creates the
+snake as a list of vectors and creates the movement by removing the last entry and appending a new offset entry (the
+offset is dependent on the direction the snake is travelling in). The good thing about this algorithim is it doesn't need
+any tracking of the snake direction and extra logic to handle how to append the snake.
+Version 1.08 - Working game - need to add scoring and level up - i.e. speed up the game as the snake grows
+Phil Jones July 2019 - phil.jones.24.4@gmail.com
+"""
+
 import pygame
 import random
 
@@ -15,8 +24,6 @@ LIGHT_GREEN = (101, 152, 101)
 GREY = (128, 128, 128)
 snake_surface = pygame.display.set_mode((WindowWidth, WindowHeight))
 clock = pygame.time.Clock()
-snakeSize = 1
-
 
 
 class Cube(object):
@@ -32,8 +39,6 @@ class Cube(object):
     def move(self, dir_x, dir_y):
         self.dir_x = dir_x
         self.dir_y = dir_y
-        #self.pos = (self.pos[0] + self.dir_x, self.pos[1] + self.dir_y)
-
 
     def draw(self, surface, head=False):
         dis = self.width // self.rows
@@ -45,14 +50,9 @@ class Cube(object):
             pygame.draw.rect(surface, self.colour, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
 
 
-    def return_pos(self):
-        cube_x = self.pos[0]
-        cube_y = self.pos[1]
-        return cube_x, cube_y
-
-
 class Snake(object):
     body = []
+
     def __init__(self, pos, colour):
         self.colour = colour
         self.head = Cube(pos)
@@ -62,6 +62,7 @@ class Snake(object):
 
     def move(self):
         tail = self.body[-1]
+
         # Append pop, append pop - shift register movement - always appending correct directions squares
         self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
         self.body.pop(0)
@@ -88,7 +89,6 @@ class Snake(object):
                 down = True
                 up = True
             elif keys[pygame.K_UP] and down:
-
                 self.dir_x = 0
                 self.dir_y = -1
                 up = False
@@ -102,19 +102,19 @@ class Snake(object):
                 up = True
                 right = True
                 left = True
-
-
+            elif keys[pygame.K_SPACE]:
+                self.reset((10,10))
 
     def draw(self, surface):
         for i, c in enumerate(self.body):
-            print (i, len(self.body))
             snakeLength = (len(self.body))
-            if i == snakeLength - 1:
+            head = snakeLength - 1
+            if i == head:
                 c.draw(surface, True)
             else:
                 c.draw(surface)
             # Constrain it
-            if i == snakeLength - 1:
+            if i == head:
                 if c.pos[0] > scale - 1:
                     c.pos = (0, c.pos[1])
                 if c.pos[0] < 0:
@@ -124,15 +124,22 @@ class Snake(object):
                 if c.pos[1] < 0:
                     c.pos = (c.pos[0], scale - 1)
 
-    def addBlock(self):
+    def add_block(self):
         tail = self.body[-1]
         self.body.insert(0,(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN)))
 
+    def reset(self, pos):
+        self.body = []
+        self.head = Cube(pos)
+        self.body.append(self.head)
+        self.dir_x = 1
+        self.dir_y = 0
 
 
 def random_food(row):
-    # We're passed in the row the snakes head is on
+    # We've passed in the row the snakes head is on
     # This ensures the food can not be generated where the head is
+    # To improve this we could ensure the food can't be generated on the snake
     while True:
         f_row = random.randrange(scale)
         f_col = random.randrange(scale)
@@ -144,7 +151,6 @@ def random_food(row):
 
 
 def main():
-
     loop = True
     global left, right, up, down
     left = False
@@ -152,7 +158,7 @@ def main():
     up = True
     down = True
     pygame.init()
-    pygame.display.set_caption("Snake V1.00")
+    pygame.display.set_caption("Snake V1.08")
 
     # Create our snake object
     s = Snake((10, 10), GREEN)
@@ -161,13 +167,14 @@ def main():
     while loop:
         # Update screen
         snake_surface.fill(BLACK)
+
         # Control FPS
         pygame.time.delay(80)
         clock.tick(15)
+
         # Move Snake
         s.move()
         pygame.display.update()
-
 
         # Draw Snake
         s.draw(snake_surface)
@@ -175,16 +182,23 @@ def main():
         # Draw Food
         f.draw(snake_surface)
 
-        # Check collides
+        # Check collides with food
         snakeLength = len(s.body)
         if f.pos == s.body[snakeLength - 1].pos:
             f = Cube(random_food(s.body[0].pos), colour=RED)
-            s.addBlock()
+            s.add_block()
+
+        # Check collides with self
+        for each_block in range(snakeLength):
+            if s.body[each_block].pos in list(map(lambda z: z.pos, s.body[each_block + 1:])):
+                print ("DEAD!!")
+                s.reset((10,10))
+                break
 
         # Update the screen
         pygame.display.flip()
 
-
+# Call main
 main()
 
 
