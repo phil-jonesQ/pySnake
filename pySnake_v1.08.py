@@ -170,7 +170,7 @@ def random_food(row):
 
 def main():
     loop = True
-    # Declare Global vars
+    # Declare Global Vars
     global left, right, up, down, level, frame_rate, game_over
     pygame.init()
     pygame.display.set_caption("Snake V1.10")
