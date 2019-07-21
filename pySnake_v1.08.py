@@ -27,8 +27,6 @@ snake_surface = pygame.display.set_mode((WindowWidth, WindowHeight))
 clock = pygame.time.Clock()
 
 
-
-
 class Cube(object):
     rows = scale
     width = 500
@@ -123,14 +121,14 @@ class Snake(object):
                 c.draw(surface)
             # Constrain it
             if i == head:
-                if c.pos[0] > scale - 1:
+                if c.pos[0] > scale:
                     c.pos = (0, c.pos[1])
                 if c.pos[0] < 0:
-                    c.pos = (scale - 1, c.pos[1])
-                if c.pos[1] > scale - 1:
+                    c.pos = (scale, c.pos[1])
+                if c.pos[1] > scale:
                     c.pos = (c.pos[0], 0)
                 if c.pos[1] < 0:
-                    c.pos = (c.pos[0], scale - 1)
+                    c.pos = (c.pos[0], scale)
 
     def add_block(self):
         tail = self.body[-1]
@@ -216,12 +214,16 @@ def main():
                 break
 
         # Update Display for user
-        text = font.render("SCORE: " + str(snakeLength) + " LEVEL: " + str(level), True, WHITE)
+        text = font.render("SCORE " + str(snakeLength), True, WHITE)
+        text2 = font.render("LEVEL " + str(level), True, WHITE)
         if game_over:
-            text = font.render("SCORE: " + str(snakeLength) + " LEVEL: " + str(level), True, RED)
-            text2 = font2.render("GAME OVER!!! SPACE TO RESTART..", True, RED)
-            snake_surface.blit((text2), [80, WindowHeight - 400])
-        snake_surface.blit((text), [0, WindowHeight - 60])
+            text = font.render("SCORE " + str(snakeLength), True, WHITE)
+            text2 = font.render("LEVEL " + str(level), True, WHITE)
+            text_game_over = font2.render("GAME OVER!!! SPACE TO RESTART..", True, RED)
+            snake_surface.blit(text_game_over, [80, WindowHeight - 400])
+        pygame.draw.line(snake_surface, WHITE, (0, WindowHeight - 65), (WindowWidth, WindowHeight - 65))
+        snake_surface.blit(text, [20, WindowHeight - 60])
+        snake_surface.blit(text2, [WindowWidth - 190, WindowHeight - 60])
 
         # Update the screen
         pygame.display.flip()
@@ -246,8 +248,3 @@ def main():
 
 # Call main
 main()
-
-
-
-
-
