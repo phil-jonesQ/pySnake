@@ -12,9 +12,9 @@ import random
 
 # Constants
 
-WindowWidth = 500
-WindowHeight = 500
-scale = 20
+WindowWidth = 520
+WindowHeight = 600
+scale = 25
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -24,6 +24,8 @@ LIGHT_GREEN = (101, 152, 101)
 GREY = (128, 128, 128)
 snake_surface = pygame.display.set_mode((WindowWidth, WindowHeight))
 clock = pygame.time.Clock()
+
+
 
 
 class Cube(object):
@@ -71,7 +73,7 @@ class Snake(object):
             if event.type == pygame.QUIT:
                 pygame.quit()
         # Prevent being able to go back on self
-        global left, right, up, down
+        global left, right, up, down, level, game_over
         keys = pygame.key.get_pressed()
         for key in keys:
             if keys[pygame.K_LEFT] and right:
@@ -134,6 +136,14 @@ class Snake(object):
         self.body.append(self.head)
         self.dir_x = 1
         self.dir_y = 0
+        global left, right, up, down, level, frame_rate, game_over
+        left = False
+        right = True
+        up = True
+        down = True
+        game_over = False
+        level = 1
+        frame_rate = 10
 
 
 def random_food(row):
@@ -152,25 +162,31 @@ def random_food(row):
 
 def main():
     loop = True
-    global left, right, up, down
+    global left, right, up, down, level, frame_rate, game_over
+    game_over = False
     left = False
     right = True
     up = True
     down = True
+    level = 1
+    frame_rate = 10
     pygame.init()
-    pygame.display.set_caption("Snake V1.08")
+    pygame.display.set_caption("Snake V1.09")
+
+    # Initialise fonts we will use
+    font = pygame.font.SysFont('Arial', 50, False, False)
 
     # Create our snake object
     s = Snake((10, 10), GREEN)
     # Create our initial food
     f = Cube(random_food(s.body[0].pos), colour=RED)
     while loop:
+
         # Update screen
         snake_surface.fill(BLACK)
 
         # Control FPS
-        pygame.time.delay(80)
-        clock.tick(15)
+        clock.tick(frame_rate)
 
         # Move Snake
         s.move()
@@ -191,12 +207,33 @@ def main():
         # Check collides with self
         for each_block in range(snakeLength):
             if s.body[each_block].pos in list(map(lambda z: z.pos, s.body[each_block + 1:])):
-                print ("DEAD!!")
-                s.reset((10,10))
+                game_over = True
+                s.reset((10, 10))
                 break
 
+        # Update Display
+        text = font.render("SCORE: " + str(snakeLength) + " LEVEL: " + str(level), True, WHITE)
+        snake_surface.blit((text), [0, WindowHeight - 60])
         # Update the screen
         pygame.display.flip()
+
+        # Increase Level
+        if snakeLength > 10:
+            level = 2
+        if snakeLength > 20:
+            level = 3
+        if snakeLength > 40:
+            level = 4
+
+        # Map level
+        if level == 1:
+            frame_rate = 10
+        if level == 2:
+            frame_rate = 12
+        if level == 3:
+            frame_rate = 16
+        if level == 4:
+            frame_rate = 20
 
 # Call main
 main()
