@@ -4,6 +4,7 @@ snake as a list of vectors and creates the movement by removing the last entry a
 offset is dependent on the direction the snake is travelling in). The good thing about this algorithim is it doesn't need
 any tracking of the snake direction and extra logic to handle how to append the snake.
 Version 1.08 - Working game - need to add scoring and level up - i.e. speed up the game as the snake grows
+Version 1.10 - Working game - Game over and levels added
 Phil Jones July 2019 - phil.jones.24.4@gmail.com
 """
 
@@ -64,48 +65,53 @@ class Snake(object):
 
     def move(self):
         tail = self.body[-1]
+        global left, right, up, down, level, game_over
 
-        # Append pop, append pop - shift register movement - always appending correct directions squares
-        self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        self.body.pop(0)
+        if not game_over:
+            # Append pop, append pop - shift register movement - always appending correct directions squares
+            self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
+            self.body.pop(0)
+
+        if game_over:
+            self.dir_x = 0
+            self.dir_y = 0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        # Prevent being able to go back on self
-        global left, right, up, down, level, game_over
+
         keys = pygame.key.get_pressed()
         for key in keys:
-            if keys[pygame.K_LEFT] and right:
+            if keys[pygame.K_LEFT] and right and not game_over:
                 self.dir_x = -1
                 self.dir_y = 0
                 left = False
                 right = True
                 down = True
                 up = True
-            elif keys[pygame.K_RIGHT] and left:
+            elif keys[pygame.K_RIGHT] and left and not game_over:
                 self.dir_x = 1
                 self.dir_y = 0
                 right = False
                 left = True
                 down = True
                 up = True
-            elif keys[pygame.K_UP] and down:
+            elif keys[pygame.K_UP] and down and not game_over:
                 self.dir_x = 0
                 self.dir_y = -1
                 up = False
                 down = True
                 right = True
                 left = True
-            elif keys[pygame.K_DOWN] and up:
+            elif keys[pygame.K_DOWN] and up and not game_over:
                 self.dir_x = 0
                 self.dir_y = 1
                 down = False
                 up = True
                 right = True
                 left = True
-            elif keys[pygame.K_SPACE]:
-                self.reset((10,10))
+            elif keys[pygame.K_SPACE] and game_over:
+                self.reset((10, 10))
 
     def draw(self, surface):
         for i, c in enumerate(self.body):
@@ -131,11 +137,13 @@ class Snake(object):
         self.body.insert(0,(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN)))
 
     def reset(self, pos):
+        # Snake property reset
         self.body = []
         self.head = Cube(pos)
         self.body.append(self.head)
         self.dir_x = 1
         self.dir_y = 0
+        # Global property reset
         global left, right, up, down, level, frame_rate, game_over
         left = False
         right = True
@@ -162,24 +170,21 @@ def random_food(row):
 
 def main():
     loop = True
+    # Declare Global vars
     global left, right, up, down, level, frame_rate, game_over
-    game_over = False
-    left = False
-    right = True
-    up = True
-    down = True
-    level = 1
-    frame_rate = 10
     pygame.init()
-    pygame.display.set_caption("Snake V1.09")
+    pygame.display.set_caption("Snake V1.10")
 
     # Initialise fonts we will use
     font = pygame.font.SysFont('Arial', 50, False, False)
+    font2 = pygame.font.SysFont('Arial', 25, False, False)
 
     # Create our snake object
     s = Snake((10, 10), GREEN)
     # Create our initial food
     f = Cube(random_food(s.body[0].pos), colour=RED)
+    # Rest/Initialise our snake and global vars
+    s.reset((10, 10))
     while loop:
 
         # Update screen
@@ -208,12 +213,16 @@ def main():
         for each_block in range(snakeLength):
             if s.body[each_block].pos in list(map(lambda z: z.pos, s.body[each_block + 1:])):
                 game_over = True
-                s.reset((10, 10))
                 break
 
-        # Update Display
+        # Update Display for user
         text = font.render("SCORE: " + str(snakeLength) + " LEVEL: " + str(level), True, WHITE)
+        if game_over:
+            text = font.render("SCORE: " + str(snakeLength) + " LEVEL: " + str(level), True, RED)
+            text2 = font2.render("GAME OVER!!! SPACE TO RESTART..", True, RED)
+            snake_surface.blit((text2), [80, WindowHeight - 400])
         snake_surface.blit((text), [0, WindowHeight - 60])
+
         # Update the screen
         pygame.display.flip()
 
@@ -237,6 +246,8 @@ def main():
 
 # Call main
 main()
+
+
 
 
 
