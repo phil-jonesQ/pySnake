@@ -15,6 +15,7 @@ LIGHT_GREEN = (101, 152, 101)
 GREY = (128, 128, 128)
 snake_surface = pygame.display.set_mode((WindowWidth, WindowHeight))
 clock = pygame.time.Clock()
+snakeSize = 1
 
 
 
@@ -34,11 +35,15 @@ class Cube(object):
         #self.pos = (self.pos[0] + self.dir_x, self.pos[1] + self.dir_y)
 
 
-    def draw(self, surface):
+    def draw(self, surface, head=False):
         dis = self.width // self.rows
         i = self.pos[0]
         j = self.pos[1]
-        pygame.draw.rect(surface, self.colour, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
+        if head:
+            pygame.draw.rect(surface, BLUE, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
+        else:
+            pygame.draw.rect(surface, self.colour, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
+
 
     def return_pos(self):
         cube_x = self.pos[0]
@@ -48,8 +53,6 @@ class Cube(object):
 
 class Snake(object):
     body = []
-    turns = {}
-
     def __init__(self, pos, colour):
         self.colour = colour
         self.head = Cube(pos)
@@ -59,32 +62,14 @@ class Snake(object):
 
     def move(self):
         tail = self.body[-1]
-
-        #self.body.pop()
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
+        # Append pop, append pop - shift register movement - always appending correct directions squares
         self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-        #self.body.pop()
-
-        for i, c in enumerate(self.body):
-            #print(i, c.pos)
-            self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
-            self.body.pop(i)
-
-
+        self.body.pop(0)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+        # Prevent being able to go back on self
         global left, right, up, down
         keys = pygame.key.get_pressed()
         for key in keys:
@@ -117,19 +102,19 @@ class Snake(object):
                 up = True
                 right = True
                 left = True
-            # Prevent being able to go back on self
+
 
 
     def draw(self, surface):
         for i, c in enumerate(self.body):
-            c.move(self.dir_x, self.dir_y)
-            if i == 0:
-                c.draw(surface)
+            print (i, len(self.body))
+            snakeLength = (len(self.body))
+            if i == snakeLength - 1:
+                c.draw(surface, True)
             else:
                 c.draw(surface)
             # Constrain it
-            if i == 0:
-                #print ("Snake Head is at " + str(c.pos[0]), str(c.pos[1]))
+            if i == snakeLength - 1:
                 if c.pos[0] > scale - 1:
                     c.pos = (0, c.pos[1])
                 if c.pos[0] < 0:
@@ -141,8 +126,8 @@ class Snake(object):
 
     def addBlock(self):
         tail = self.body[-1]
-        #self.body.append(Cube((tail.pos[0] - 1, tail.pos[1]), colour = GREEN))
-        #self.body.append(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN))
+        self.body.insert(0,(Cube((tail.pos[0] + self.dir_x, tail.pos[1] + self.dir_y), colour=GREEN)))
+
 
 
 def random_food(row):
@@ -178,7 +163,7 @@ def main():
         snake_surface.fill(BLACK)
         # Control FPS
         pygame.time.delay(80)
-        clock.tick(30)
+        clock.tick(15)
         # Move Snake
         s.move()
         pygame.display.update()
@@ -191,7 +176,8 @@ def main():
         f.draw(snake_surface)
 
         # Check collides
-        if f.pos == s.body[0].pos:
+        snakeLength = len(s.body)
+        if f.pos == s.body[snakeLength - 1].pos:
             f = Cube(random_food(s.body[0].pos), colour=RED)
             s.addBlock()
 
