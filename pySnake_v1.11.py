@@ -5,6 +5,7 @@ offset is dependent on the direction the snake is travelling in). The good thing
 any tracking of the snake direction and extra logic to handle how to append the snake.
 Version 1.08 - Working game - need to add scoring and level up - i.e. speed up the game as the snake grows
 Version 1.10 - Working game - Game over and levels added
+Version 1.11 - Tweaks and fixes
 Phil Jones July 2019 - phil.jones.24.4@gmail.com
 """
 
